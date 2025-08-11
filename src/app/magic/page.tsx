@@ -7,7 +7,7 @@ const state = {};
 
 type Tool = {
   name: string;
-  dedicated: bool;
+  dedicated: boolean;
 };
 
 type Char = {
@@ -58,7 +58,7 @@ const pages = [
 type FieldProps = {
   name: string;
   label: string;
-  value: string;
+  value: number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
@@ -83,6 +83,7 @@ const Field = (props: FieldProps) => {
 
 type RadioFieldsProps = {
   name: string;
+  onChange: (value: string) => void;
   choices: {
     value: string;
     label: string;
@@ -90,20 +91,20 @@ type RadioFieldsProps = {
 };
 
 const RadioFields = (props: RadioFieldsProps) => {
-  const { name, choices, value, onChange } = props;
+  const { name, choices, onChange } = props;
 
   return choices.map((choice) => {
     return (
       <div>
         <Radio
-          id={choice.value}
+          id={choice.value.toString()}
           name={name}
           value={choice.value}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onChange(e.target.value)
           }
         />
-        <Label htmlFor={choice.value}>{choice.label}</Label>
+        <Label htmlFor={choice.value.toString()}>{choice.label}</Label>
       </div>
     );
   });
@@ -223,7 +224,6 @@ const SpellKind = (props: SpellKindProps) => {
             label: "Rotina",
           },
         ]}
-        value={value}
         onChange={onChange}
       />
     </div>
@@ -245,6 +245,8 @@ const Magic = () => {
     space: 0,
     forces: 0,
     mind: 0,
+
+    tools: [],
   });
   const [spell, setSpell] = useState<Spell>({
     kind: "",
