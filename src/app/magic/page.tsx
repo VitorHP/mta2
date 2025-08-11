@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TextInput, Label, Radio } from "flowbite-react";
+import { TextInput, Label, Radio, Button } from "flowbite-react";
 
 const state = {};
 
@@ -30,6 +30,8 @@ type Char = {
 
 type Spell = {
   kind: string;
+  arcana: string;
+  practice: string;
 };
 
 const char = {
@@ -37,12 +39,109 @@ const char = {
   ferramentas: [],
 };
 
+const arcana = [
+  {
+    value: "life",
+    label: "Vida",
+  },
+  {
+    value: "time",
+    label: "Tempo",
+  },
+  {
+    value: "fate",
+    label: "Sorte",
+  },
+  {
+    value: "death",
+    label: "Morte",
+  },
+  {
+    value: "spirit",
+    label: "Espírito",
+  },
+  {
+    value: "prime",
+    label: "Primórdio",
+  },
+  {
+    value: "matter",
+    label: "Matéria",
+  },
+  {
+    value: "space",
+    label: "Espaço",
+  },
+  {
+    value: "forces",
+    label: "Forças",
+  },
+  {
+    value: "mind",
+    label: "Mente",
+  }
+]
+
+
 const practices = [
-  ["compelir", "conhecer", "desvelar"],
-  ["reger", "proteger", "velar"],
-  ["desfiar", "aperfeiçoar", "fiar"],
-  ["padronizar", "desfazer"],
-  ["fazer"],
+  [
+    {
+      value: "compelling",
+      label: "Compelir",
+    },
+    {
+      value: "knowing",
+      label: "Conhecer",
+    },
+    {
+      value: "unveiling",
+      label: "Desvelar",
+    }
+  ],
+  [
+    {
+      value: "ruling",
+      label: "Reger",
+    },
+    {
+      value: "shielding",
+      label: "Proteger",
+    },
+    {
+      value: "veiling",
+      label: "Velar",
+    }
+  ],
+  [
+    {
+      value: "fraying",
+      label: "Desfiar",
+    },
+    {
+      value: "perfecting",
+      label: "Aperfeiçoar",
+    },
+    {
+      value: "weaving",
+      label: "Fiar",
+    }
+  ],
+  [
+    {
+      value: "patterning",
+      label: "Padronizar",
+    },
+    {
+      value: "unraveling",
+      label: "Desfazer",
+    }
+  ],
+  [
+    {
+      value: "making",
+      label: "Fazer",
+    }
+  ]
 ];
 
 const pages = [
@@ -83,6 +182,7 @@ const Field = (props: FieldProps) => {
 
 type RadioFieldsProps = {
   name: string;
+  value: string;
   onChange: (value: string) => void;
   choices: {
     value: string;
@@ -91,7 +191,7 @@ type RadioFieldsProps = {
 };
 
 const RadioFields = (props: RadioFieldsProps) => {
-  const { name, choices, onChange } = props;
+  const { name, choices, value, onChange } = props;
 
   return choices.map((choice) => {
     return (
@@ -100,6 +200,7 @@ const RadioFields = (props: RadioFieldsProps) => {
           id={choice.value.toString()}
           name={name}
           value={choice.value}
+          checked={value === choice.value}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onChange(e.target.value)
           }
@@ -210,6 +311,7 @@ const SpellKind = (props: SpellKindProps) => {
     <div>
       <RadioFields
         name={"spellKind"}
+        value={value}
         choices={[
           {
             value: "improvised",
@@ -229,6 +331,51 @@ const SpellKind = (props: SpellKindProps) => {
     </div>
   );
 };
+
+type ArcanaProps = {
+  value: string
+  onChange: (value: string) => void;
+}
+
+const Arcana = (props: ArcanaProps) => {
+  const { value, onChange } = props;
+
+  return (
+    <RadioFields
+      name={"arcana"}
+      value={value}
+      choices={arcana}
+      onChange={onChange}
+    />
+  )
+}
+
+type PracticeProps = {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+const Practice = (props: PracticeProps) => {
+  const { value, onChange } = props;
+
+  const fields = practices.map((level, i) =>
+    <>
+      <div>Nível {i + 1}</div>
+      <RadioFields
+        name={"practice"}
+        value={value}
+        choices={level}
+        onChange={onChange}
+      />
+    </>
+  )
+
+  return (
+    <>
+      {fields}
+    </>
+  );
+}
 
 const Magic = () => {
   const [char, setChar] = useState<Char>({
@@ -250,18 +397,46 @@ const Magic = () => {
   });
   const [spell, setSpell] = useState<Spell>({
     kind: "",
+    arcana: "",
+    practice: ""
   });
+  const [page, setPage] = useState<number>(0);
+
+  const comps = [
+    <Setup char={char} onChange={setChar} />,
+    <SpellKind
+      value={spell.kind}
+      onChange={(value: string) => setSpell({ ...spell, kind: value })}
+    />,
+    <Arcana
+      value={spell.arcana}
+      onChange={(value: string) => setSpell({ ...spell, arcana: value })}
+    />,
+    <Practice
+      value={spell.practice}
+      onChange={(value: string) => setSpell({ ...spell, practice: value })}
+    />
+  ]
+
+  const advancePage = () => {
+    setPage(page + 1);
+  }
+
+  const rewindPage = () => {
+    setPage(page - 1);
+  }
 
   return (
     <>
-      {JSON.stringify(char, null, 2)}
-      <br />
-      {JSON.stringify(spell, null, 2)}
-      {/* <Setup char={char} onChange={setChar} />; */}
-      <SpellKind
-        value={spell.kind}
-        onChange={(value: string) => setSpell({ ...spell, kind: value })}
-      />
+      {JSON.stringify(char)}
+      {JSON.stringify(spell)}
+      {comps[page] || <div>Page not found</div>}
+      <Button onClick={rewindPage}>
+        Anterior
+      </Button>
+      <Button onClick={advancePage}>
+        Próxima
+      </Button>
     </>
   );
 };
